@@ -45,10 +45,10 @@ import static com.alibaba.cloud.ai.graph.action.AsyncNodeAction.node_async;
 
 /**
  * 人类反馈（Human-in-the-Loop）示例
- * 
+ *
  * 在实际业务场景中，经常会遇到人类介入的场景，人类的不同操作将影响工作流不同的走向。
  * Spring AI Alibaba Graph 提供了两种方式来实现人类反馈：
- * 
+ *
  * 1. InterruptionMetadata 模式：可以在任意节点随时中断，通过实现 InterruptableAction 接口来控制中断时机
  * 2. interruptBefore 模式：需要提前在编译配置中定义中断点，在指定节点执行前中断
  */
@@ -299,8 +299,14 @@ public class HumanInTheLoopExample {
 	 * 继续执行 Graph（interruptBefore 模式）
 	 */
 	public static void continueExecutionWithInterruptBefore(CompiledGraph graph, RunnableConfig updateConfig) {
+		RunnableConfig resumeConfig = RunnableConfig.builder(updateConfig)
+				.addMetadata(RunnableConfig.HUMAN_FEEDBACK_METADATA_KEY, "placeholder")
+				.build();
+
+		System.out.println("\n--继续执行 Graph--");
+
 		// 继续执行 Graph（input 为 null，使用之前的状态）
-		graph.stream(null, updateConfig)
+		graph.stream(null, resumeConfig)
 				.doOnNext(event -> System.out.println(event))
 				.doOnError(error -> System.err.println("流错误: " + error.getMessage()))
 				.doOnComplete(() -> System.out.println("流完成"))
@@ -328,8 +334,14 @@ public class HumanInTheLoopExample {
 	 * 继续执行直到完成（interruptBefore 模式）
 	 */
 	public static void continueExecutionUntilComplete(CompiledGraph graph, RunnableConfig updateConfig) {
+		RunnableConfig resumeConfig = RunnableConfig.builder(updateConfig)
+				.addMetadata(RunnableConfig.HUMAN_FEEDBACK_METADATA_KEY, "placeholder")
+				.build();
+
+		System.out.println("\n--继续执行 Graph--");
+
 		// 继续执行 Graph
-		graph.stream(null, updateConfig)
+		graph.stream(null, resumeConfig)
 				.doOnNext(event -> System.out.println(event))
 				.doOnError(error -> System.err.println("流错误: " + error.getMessage()))
 				.doOnComplete(() -> System.out.println("流完成"))
